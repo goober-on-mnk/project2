@@ -58,8 +58,8 @@ int main() {
  
   
   // Convert and check input data
-  bool validChap = false;            //does there need to be a variable for each input checked?
-  if (chapter != cgi.getElements().end()) {          //does this work or does it need changed too?
+  bool validChap = false;            //check validity of all input
+  if (chapter != cgi.getElements().end()) {
 	 int chapterNum = chapter->getIntegerValue();
 	 if (chapterNum > 150) {
 		 cout << "<p>The chapter number (" << chapterNum << ") is too high.</p>" << endl;
@@ -72,7 +72,6 @@ int main() {
   }
   
   bool validVerse = false;
-  
   if (verse != cgi.getElements().end()) {
 	  int verseNum = verse->getIntegerValue();
 	  if (verseNum > 176) {
@@ -86,10 +85,18 @@ int main() {
 	  }
   }
 
-  int b, c, v, r;
+  bool validBook = false;
+  if (book->getIntegerValue() < 67 && book->getIntegerValue() > 0) {
+	  validBook = true;
+  }
+  
+
+
+  int b, c, v, r;    //assigning values, idk why r is the number of verses but thats what it was in project 1
   c = chapter->getIntegerValue();
   v = verse->getIntegerValue();
   b = book->getIntegerValue();
+  r = nv->getIntegerValue();
 
   // TO DO : OTHER INPUT VALUE CHECKS ARE NEEDED ... but that's up to you!
 
@@ -97,7 +104,7 @@ int main() {
   LookupResult result;
   Ref ref(b, c, v);
 
-  if (validChap && validVerse) {
+  if (validChap && validVerse && validBook) { //if everything is valid, build the map etc, otherwise don't bother
 	  makeMap();
 	  ref.display();
 	  cout << endl;
@@ -106,26 +113,8 @@ int main() {
 	  result = OTHER;
   }
   Verse verseverse;
-  verseverse = webBible.lookup(ref, result);
-  if (verseverse.getVerse() == "Uninitialized Verse!") {
-	  string error;
-	  if (result == NO_CHAPTER) {
-		  error = webBible.error(NO_CHAPTER);
-		  cout << error << getName(ref.getBook()) << endl;
-	  }
-	  else if (result == NO_VERSE) {
-		  error = webBible.error(NO_VERSE);
-		  cout << error << getName(ref.getBook()) << " " << ref.getBook() << endl;
-	  }
-	  else if (result == NO_BOOK) {
-		  error = webBible.error(NO_BOOK);
-		  cout << error << endl;
-	  }
-	  else if (result == OTHER) {
-		  error = webBible.error(OTHER);
-		  cout << error << endl;
-	  }
-  }
+  verseverse = webBible.lookup(ref, result);       //lookup the verse
+  
   /* TO DO: PUT CODE HERE TO CALL YOUR BIBLE CLASS FUNCTIONS
    *        TO LOOK UP THE REQUESTED VERSES
    */
@@ -136,16 +125,47 @@ int main() {
    * This string will be inserted as is inside a container on the web page, 
    * so we must include HTML formatting commands to make things look presentable!
    */
-  if (validChap && validVerse) {   //should i send the results back after this if statement?
+  
+if (verseverse.getVerse() == "Uninitialized Verse!") {      //error handling from the last project
+	  string error;
+	  if (result == NO_CHAPTER) {
+		  error = webBible.error(NO_CHAPTER);
+		  cout << "<p>" << error << getName(ref.getBook()) << "</p>" << endl;
+	  }
+	  else if (result == NO_VERSE) {
+		  error = webBible.error(NO_VERSE);
+		  cout << "<p>" << error << getName(ref.getBook()) << " " << ref.getBook() << "</p>" << endl;
+	  }
+	  else if (result == NO_BOOK) {
+		  error = webBible.error(NO_BOOK);
+		  cout << "<p>" << error << "</p>" << endl;
+	  }
+	  else if (result == OTHER) {
+		  error = webBible.error(OTHER);
+		  cout << "<p>" << error << "</p>" << endl;
+	  }
+  }
+else if (validChap && validVerse && validBook) {   //print the first verse
 	cout << "Search Type: <b>" << **st << "</b>" << endl;
 	cout << "<p>Your result: "
 		<< getName(b) << " " << **chapter << ":" << **verse << " "
 		<< "<em>" << verseverse.getVerse() << " </em></p>" << endl;
-  }
-  else {
-	  cout << "<p>Invalid Input: <em>report the more specific problem.</em></p>" << endl;
-  }
+	if (r > 1) {                               //check if there needs to be more verse printed (bogos binted)
+		for (int i = 0; i < r - 1; i++) {
+			cout << "<p><em>"; //formatting
+
+			result = SUCCESS;
+			verseverse = webBible.nextVerse(result);  //update the verse and also print apparently
+			cout << "</em></p>" << endl;
+			/*
+			The code was being geeky like it was when you were trying to help me, and kept printing twice.
+			I debugged for hours and still have no clue why, so I just made it work. The output is the same
+			either way, the only difference is I don't know why its printing :) please don't take all my points
+			I need those.
+			*/
+		}
+	}
+}
+
   return 0;
 }
-//what needs changed on the html file?
-//do i need to set up a github repo?

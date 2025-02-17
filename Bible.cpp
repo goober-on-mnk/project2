@@ -57,11 +57,11 @@ Verse Bible::lookup(Ref ref, LookupResult& status) {
 }
 // REQUIRED: Return the next verse from the Bible file stream if the file is open.
 // If the file is not open, open the file and return the first verse.
-Verse Bible::nextVerse(LookupResult& status) { 
+Verse Bible::nextVerse(LookupResult& status) {
 	string line;
 	getline(instream, line);
-	cout << line << endl;
-	return line;
+	Verse next(line);
+	return next;
 }
 
 // REQUIRED: Return an error message string to describe status
